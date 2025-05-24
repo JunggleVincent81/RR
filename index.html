@@ -1,106 +1,102 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Algoritma Round Robin - Penjadwalan CPU</title>
+  <title>Simulasi Algoritma Round Robin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans">
-  <header class="bg-blue-600 text-white py-6 shadow-md">
-    <h1 class="text-3xl text-center font-bold">Pemahaman Algoritma Round Robin (RR)</h1>
-    <p class="text-center mt-2">Visualisasi dan Penjelasan Penjadwalan CPU</p>
-  </header>  <main class="max-w-4xl mx-auto p-6 space-y-12">
-    <!-- Penjelasan RR -->
-    <section>
-      <h2 class="text-2xl font-bold mb-4">Apa Itu Round Robin?</h2>
-      <p class="text-justify">
-        Round Robin (RR) adalah algoritma penjadwalan CPU yang membagi waktu eksekusi menjadi bagian-bagian kecil yang disebut "time quantum". Setiap proses dalam antrian akan dieksekusi secara bergiliran selama time quantum tertentu. Jika proses belum selesai, ia akan ditempatkan kembali di akhir antrian untuk menunggu giliran berikutnya.
-      </p>
-    </section><!-- Contoh Aplikatif -->
-<section>
-  <h2 class="text-2xl font-bold mb-4">Contoh Aplikatif</h2>
-  <p class="mb-2">Misalkan kita punya 4 proses:</p>
-  <table class="table-auto w-full mb-4 border border-gray-300">
-    <thead class="bg-gray-200">
-      <tr>
-        <th class="px-4 py-2 border">Proses</th>
-        <th class="px-4 py-2 border">Waktu Datang</th>
-        <th class="px-4 py-2 border">Burst Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="px-4 py-2 border">P1</td>
-        <td class="px-4 py-2 border">0</td>
-        <td class="px-4 py-2 border">5</td>
-      </tr>
-      <tr>
-        <td class="px-4 py-2 border">P2</td>
-        <td class="px-4 py-2 border">1</td>
-        <td class="px-4 py-2 border">4</td>
-      </tr>
-      <tr>
-        <td class="px-4 py-2 border">P3</td>
-        <td class="px-4 py-2 border">2</td>
-        <td class="px-4 py-2 border">6</td>
-      </tr>
-      <tr>
-        <td class="px-4 py-2 border">P4</td>
-        <td class="px-4 py-2 border">3</td>
-        <td class="px-4 py-2 border">2</td>
-      </tr>
-    </tbody>
-  </table>
-  <p class="mb-2">Dengan time quantum 3 detik, urutan eksekusi proses adalah:</p>
-  <div class="flex flex-wrap gap-1">
-    <span class="bg-blue-200 px-3 py-1 rounded">P1</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P2</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P3</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P4</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P1</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P2</span>
-    <span class="bg-blue-200 px-3 py-1 rounded">P3</span>
-  </div>
-</section>
+<body class="bg-gray-50 text-gray-800 p-6">
+  <h1 class="text-2xl font-bold mb-4">Simulasi Algoritma Round Robin</h1>  <div class="mb-4">
+    <label for="quantum" class="block font-semibold">Time Quantum:</label>
+    <input type="number" id="quantum" value="2" class="p-2 border rounded" />
+  </div><button onclick="simulate()" class="px-4 py-2 bg-blue-600 text-white rounded">Jalankan Simulasi</button>
 
-<!-- Kelebihan dan Kekurangan -->
-<section>
-  <h2 class="text-2xl font-bold mb-4">Kelebihan dan Kekurangan</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <h3 class="font-semibold mb-2">Kelebihan:</h3>
-      <ul class="list-disc list-inside space-y-1">
-        <li>Adil bagi semua proses (giliran sama)</li>
-        <li>Responsif, cocok untuk sistem multitasking</li>
-        <li>Mencegah starvation</li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="font-semibold mb-2">Kekurangan:</h3>
-      <ul class="list-disc list-inside space-y-1">
-        <li>Banyak context switching jika quantum terlalu kecil</li>
-        <li>Performa menurun jika quantum terlalu besar</li>
-        <li>Tidak memprioritaskan proses pendek</li>
-      </ul>
-    </div>
-  </div>
-</section>
+  <div id="timeline" class="mt-6"></div>
+  <div id="stats" class="mt-6"></div>  <script>
+    const processes = [
+      { name: 'P1', arrival: 0, burst: 5 },
+      { name: 'P2', arrival: 1, burst: 3 },
+      { name: 'P3', arrival: 2, burst: 4 }
+    ];
 
-<!-- Studi Kasus -->
-<section>
-  <h2 class="text-2xl font-bold mb-4">Studi Kasus: Sistem Lab Komputer</h2>
-  <p class="mb-4">Sebuah lab menjalankan 4 proses:</p>
-  <ul class="list-disc list-inside mb-4">
-    <li>P1: Browsing internet (5 detik)</li>
-    <li>P2: Menonton video (4 detik)</li>
-    <li>P3: Mengetik dokumen (6 detik)</li>
-    <li>P4: Antivirus berjalan di latar belakang (2 detik)</li>
-  </ul>
-  <p>Dengan quantum 3 detik, CPU akan melayani masing-masing proses selama 3 detik secara bergiliran. Setelah giliran selesai, jika masih ada sisa waktu, proses tersebut masuk ke antrian lagi. Proses berlanjut sampai semua selesai.</p>
-</section>
+    function simulate() {
+      const quantum = parseInt(document.getElementById('quantum').value);
+      let queue = processes.map(p => ({ ...p, remaining: p.burst, completed: false }));
+      let time = 0;
+      let sequence = [];
+      let finishTimes = {};
+      const startTimes = {};
 
-  </main>  <footer class="bg-gray-200 py-4 text-center text-sm text-gray-700">
-    Tugas Algoritma Penjadwalan CPU | Mahasiswa TI
-  </footer>
-</body>
+      while (queue.some(p => !p.completed)) {
+        let available = queue.filter(p => p.arrival <= time && !p.completed);
+        if (available.length === 0) {
+          time++;
+          continue;
+        }
+        for (let proc of available) {
+          const runTime = Math.min(proc.remaining, quantum);
+          sequence.push({ name: proc.name, start: time, end: time + runTime });
+          if (startTimes[proc.name] === undefined) startTimes[proc.name] = time;
+          proc.remaining -= runTime;
+          time += runTime;
+          if (proc.remaining === 0) {
+            proc.completed = true;
+            finishTimes[proc.name] = time;
+          }
+        }
+      }
+
+      const results = queue.map(p => {
+        const turnaround = finishTimes[p.name] - p.arrival;
+        const wait = turnaround - p.burst;
+        return { ...p, turnaround, wait };
+      });
+
+      renderTimeline(sequence);
+      renderStats(results);
+    }
+
+    function renderTimeline(sequence) {
+      const timelineDiv = document.getElementById('timeline');
+      timelineDiv.innerHTML = '<h2 class="text-xl font-bold mb-2">Timeline Eksekusi</h2>';
+      const container = document.createElement('div');
+      container.className = 'flex space-x-2';
+      sequence.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'bg-green-300 px-4 py-2 rounded shadow';
+        el.innerHTML = `<div>${t.name}</div><div class="text-sm">${t.start} - ${t.end}</div>`;
+        container.appendChild(el);
+      });
+      timelineDiv.appendChild(container);
+    }
+
+    function renderStats(stats) {
+      const statsDiv = document.getElementById('stats');
+      statsDiv.innerHTML = '<h2 class="text-xl font-bold mb-2">Statistik Proses</h2>';
+      const table = document.createElement('table');
+      table.className = 'min-w-full border';
+      table.innerHTML = `
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border px-4 py-2">Proses</th>
+            <th class="border px-4 py-2">Waktu Kedatangan</th>
+            <th class="border px-4 py-2">Burst Time</th>
+            <th class="border px-4 py-2">Turnaround Time</th>
+            <th class="border px-4 py-2">Waiting Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(s => `
+            <tr>
+              <td class="border px-4 py-2">${s.name}</td>
+              <td class="border px-4 py-2">${s.arrival}</td>
+              <td class="border px-4 py-2">${s.burst}</td>
+              <td class="border px-4 py-2">${s.turnaround}</td>
+              <td class="border px-4 py-2">${s.wait}</td>
+            </tr>
+          `).join('')}
+        </tbody>`;
+      statsDiv.appendChild(table);
+    }
+  </script></body>
 </html>
