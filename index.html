@@ -2,17 +2,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simulasi Algoritma Round Robin</title>
+  <title>Penjelasan Algoritma Round Robin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 p-6">
-  <h1 class="text-2xl font-bold mb-4">Simulasi Algoritma Round Robin</h1>  <div class="mb-4">
-    <label for="quantum" class="block font-semibold">Time Quantum:</label>
-    <input type="number" id="quantum" value="2" class="p-2 border rounded" />
-  </div><button onclick="simulate()" class="px-4 py-2 bg-blue-600 text-white rounded">Jalankan Simulasi</button>
-
-  <div id="timeline" class="mt-6"></div>
-  <div id="stats" class="mt-6"></div>  <script>
+<body class="bg-white text-gray-800 p-6 space-y-8">  <header class="text-center">
+    <h1 class="text-3xl font-bold">Algoritma Penjadwalan CPU: Round Robin (RR)</h1>
+    <p class="text-gray-600">Pemahaman, Implementasi Interaktif, dan Studi Kasus</p>
+  </header>  <!-- Penjelasan RR -->  <section>
+    <h2 class="text-2xl font-semibold mb-2">Apa itu Round Robin (RR)?</h2>
+    <p>
+      Round Robin (RR) adalah salah satu algoritma penjadwalan CPU yang menggunakan prinsip antrian melingkar (circular queue). Setiap proses mendapatkan jatah waktu eksekusi yang disebut time quantum secara bergiliran. Jika waktu yang diberikan habis dan proses belum selesai, maka proses tersebut dikembalikan ke akhir antrian untuk menunggu giliran berikutnya.
+    </p>
+  </section>  <!-- Kelebihan dan Kekurangan -->  <section>
+    <h2 class="text-2xl font-semibold mb-2">Kelebihan dan Kekurangan</h2>
+    <ul class="list-disc pl-6">
+      <li><strong>Kelebihan:</strong>
+        <ul class="list-disc pl-6">
+          <li>Adil karena setiap proses mendapat giliran yang sama.</li>
+          <li>Respon waktu yang cepat untuk sistem interaktif.</li>
+          <li>Menghindari starvation (kelaparan proses).</li>
+        </ul>
+      </li>
+      <li><strong>Kekurangan:</strong>
+        <ul class="list-disc pl-6">
+          <li>Waktu tunggu bisa lebih lama jika time quantum terlalu kecil.</li>
+          <li>Overhead tinggi karena seringnya switching.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>  <!-- Simulasi Interaktif -->  <section>
+    <h2 class="text-2xl font-semibold mb-2">Simulasi Interaktif</h2>
+    <p class="mb-4">Masukkan Time Quantum dan lihat bagaimana proses dijadwalkan.</p>
+    <div class="mb-4">
+      <label for="quantum" class="block font-semibold">Time Quantum:</label>
+      <input type="number" id="quantum" value="2" class="p-2 border rounded" />
+    </div>
+    <button onclick="simulate()" class="px-4 py-2 bg-blue-600 text-white rounded">Jalankan Simulasi</button>
+    <div id="timeline" class="mt-6"></div>
+    <div id="stats" class="mt-6"></div>
+  </section>  <!-- Studi Kasus -->  <section>
+    <h2 class="text-2xl font-semibold mb-2">Studi Kasus</h2>
+    <p class="mb-2">Bayangkan sebuah sistem kasir swalayan dengan banyak pelanggan (proses) yang dilayani oleh satu kasir (CPU). Setiap pelanggan dilayani selama 2 menit (quantum). Jika belum selesai belanjanya, mereka kembali ke antrean. Ini untuk menjamin semua pelanggan dilayani secara adil tanpa menunggu terlalu lama.</p>
+    <p class="mb-2">Implementasi Round Robin membantu menjaga keadilan dan menghindari pelanggan menunggu terlalu lama, meskipun ada pelanggan dengan banyak barang (proses berat). Ini sesuai dengan prinsip keadilan RR.</p>
+  </section>  <script>
     const processes = [
       { name: 'P1', arrival: 0, burst: 5 },
       { name: 'P2', arrival: 1, burst: 3 },
@@ -58,7 +90,7 @@
 
     function renderTimeline(sequence) {
       const timelineDiv = document.getElementById('timeline');
-      timelineDiv.innerHTML = '<h2 class="text-xl font-bold mb-2">Timeline Eksekusi</h2>';
+      timelineDiv.innerHTML = '<h3 class="text-xl font-bold mb-2">Timeline Eksekusi</h3>';
       const container = document.createElement('div');
       container.className = 'flex space-x-2';
       sequence.forEach(t => {
@@ -72,7 +104,7 @@
 
     function renderStats(stats) {
       const statsDiv = document.getElementById('stats');
-      statsDiv.innerHTML = '<h2 class="text-xl font-bold mb-2">Statistik Proses</h2>';
+      statsDiv.innerHTML = '<h3 class="text-xl font-bold mb-2">Statistik Proses</h3>';
       const table = document.createElement('table');
       table.className = 'min-w-full border';
       table.innerHTML = `
