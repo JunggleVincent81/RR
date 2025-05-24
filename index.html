@@ -1,134 +1,109 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Penjelasan Algoritma Round Robin</title>
+  <title>Simulasi Round Robin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-gray-800 p-6 space-y-8">  <header class="text-center">
-    <h1 class="text-3xl font-bold">Algoritma Penjadwalan CPU: Round Robin (RR)</h1>
-    <p class="text-gray-600">Pemahaman, Implementasi Interaktif, dan Studi Kasus</p>
-  </header>  <!-- Penjelasan RR -->  <section>
-    <h2 class="text-2xl font-semibold mb-2">Apa itu Round Robin (RR)?</h2>
-    <p>
-      Round Robin (RR) adalah salah satu algoritma penjadwalan CPU yang menggunakan prinsip antrian melingkar (circular queue). Setiap proses mendapatkan jatah waktu eksekusi yang disebut time quantum secara bergiliran. Jika waktu yang diberikan habis dan proses belum selesai, maka proses tersebut dikembalikan ke akhir antrian untuk menunggu giliran berikutnya.
-    </p>
-  </section>  <!-- Kelebihan dan Kekurangan -->  <section>
-    <h2 class="text-2xl font-semibold mb-2">Kelebihan dan Kekurangan</h2>
-    <ul class="list-disc pl-6">
-      <li><strong>Kelebihan:</strong>
-        <ul class="list-disc pl-6">
-          <li>Adil karena setiap proses mendapat giliran yang sama.</li>
-          <li>Respon waktu yang cepat untuk sistem interaktif.</li>
-          <li>Menghindari starvation (kelaparan proses).</li>
-        </ul>
-      </li>
-      <li><strong>Kekurangan:</strong>
-        <ul class="list-disc pl-6">
-          <li>Waktu tunggu bisa lebih lama jika time quantum terlalu kecil.</li>
-          <li>Overhead tinggi karena seringnya switching.</li>
-        </ul>
-      </li>
-    </ul>
-  </section>  <!-- Simulasi Interaktif -->  <section>
-    <h2 class="text-2xl font-semibold mb-2">Simulasi Interaktif</h2>
-    <p class="mb-4">Masukkan Time Quantum dan lihat bagaimana proses dijadwalkan.</p>
-    <div class="mb-4">
-      <label for="quantum" class="block font-semibold">Time Quantum:</label>
-      <input type="number" id="quantum" value="2" class="p-2 border rounded" />
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">Simulasi Algoritma Round Robin (RR)</h1>
+
+    <div class="mb-6">
+      <label for="timeQuantum" class="block mb-2 font-semibold">Time Quantum:</label>
+      <input id="timeQuantum" type="number" class="border p-2 w-24" value="2" min="1" />
     </div>
-    <button onclick="simulate()" class="px-4 py-2 bg-blue-600 text-white rounded">Jalankan Simulasi</button>
-    <div id="timeline" class="mt-6"></div>
-    <div id="stats" class="mt-6"></div>
-  </section>  <!-- Studi Kasus -->  <section>
-    <h2 class="text-2xl font-semibold mb-2">Studi Kasus</h2>
-    <p class="mb-2">Bayangkan sebuah sistem kasir swalayan dengan banyak pelanggan (proses) yang dilayani oleh satu kasir (CPU). Setiap pelanggan dilayani selama 2 menit (quantum). Jika belum selesai belanjanya, mereka kembali ke antrean. Ini untuk menjamin semua pelanggan dilayani secara adil tanpa menunggu terlalu lama.</p>
-    <p class="mb-2">Implementasi Round Robin membantu menjaga keadilan dan menghindari pelanggan menunggu terlalu lama, meskipun ada pelanggan dengan banyak barang (proses berat). Ini sesuai dengan prinsip keadilan RR.</p>
-  </section>  <script>
-    const processes = [
-      { name: 'P1', arrival: 0, burst: 5 },
-      { name: 'P2', arrival: 1, burst: 3 },
-      { name: 'P3', arrival: 2, burst: 4 }
-    ];
 
-    function simulate() {
-      const quantum = parseInt(document.getElementById('quantum').value);
-      let queue = processes.map(p => ({ ...p, remaining: p.burst, completed: false }));
+    <div class="mb-6">
+      <label class="block mb-2 font-semibold">Daftar Proses (format: nama,durasi):</label>
+      <textarea id="processInput" class="w-full p-2 border h-32" placeholder="P1,5&#10;P2,3&#10;P3,6"></textarea>
+      <button id="startBtn" onclick="runSimulation()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Jalankan Simulasi</button>
+    </div>
+
+    <div id="result" class="mt-6 space-y-4"></div>
+  </div>
+
+  <script>
+    function runSimulation() {
+      const startBtn = document.getElementById("startBtn");
+      startBtn.disabled = true;
+      startBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+      const quantum = parseInt(document.getElementById('timeQuantum').value);
+      const raw = document.getElementById('processInput').value.trim();
+      const lines = raw.split('\n');
+
+      let queue = lines.map(line => {
+        const [name, duration] = line.split(',');
+        return {
+          name: name.trim(),
+          duration: parseInt(duration.trim()),
+          remaining: parseInt(duration.trim())
+        };
+      });
+
+      let timeline = [];
       let time = 0;
-      let sequence = [];
-      let finishTimes = {};
-      const startTimes = {};
 
-      while (queue.some(p => !p.completed)) {
-        let available = queue.filter(p => p.arrival <= time && !p.completed);
-        if (available.length === 0) {
-          time++;
-          continue;
-        }
-        for (let proc of available) {
-          const runTime = Math.min(proc.remaining, quantum);
-          sequence.push({ name: proc.name, start: time, end: time + runTime });
-          if (startTimes[proc.name] === undefined) startTimes[proc.name] = time;
-          proc.remaining -= runTime;
-          time += runTime;
-          if (proc.remaining === 0) {
-            proc.completed = true;
-            finishTimes[proc.name] = time;
+      while (queue.some(p => p.remaining > 0)) {
+        for (let process of queue) {
+          if (process.remaining > 0) {
+            let execTime = Math.min(quantum, process.remaining);
+            timeline.push({ name: process.name, start: time, duration: execTime });
+            time += execTime;
+            process.remaining -= execTime;
           }
         }
       }
 
-      const results = queue.map(p => {
-        const turnaround = finishTimes[p.name] - p.arrival;
-        const wait = turnaround - p.burst;
-        return { ...p, turnaround, wait };
-      });
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '<h2 class="text-xl font-bold">Diagram Gantt:</h2>';
+      const ganttContainer = document.createElement('div');
+      ganttContainer.className = "flex items-center space-x-2 overflow-x-auto";
+      resultDiv.appendChild(ganttContainer);
 
-      renderTimeline(sequence);
-      renderStats(results);
-    }
+      let delay = 0;
+      let logTable = [];
 
-    function renderTimeline(sequence) {
-      const timelineDiv = document.getElementById('timeline');
-      timelineDiv.innerHTML = '<h3 class="text-xl font-bold mb-2">Timeline Eksekusi</h3>';
-      const container = document.createElement('div');
-      container.className = 'flex space-x-2';
-      sequence.forEach(t => {
-        const el = document.createElement('div');
-        el.className = 'bg-green-300 px-4 py-2 rounded shadow';
-        el.innerHTML = `<div>${t.name}</div><div class="text-sm">${t.start} - ${t.end}</div>`;
-        container.appendChild(el);
-      });
-      timelineDiv.appendChild(container);
-    }
+      for (let i = 0; i < timeline.length; i++) {
+        setTimeout(() => {
+          const slot = timeline[i];
+          const box = document.createElement("div");
+          box.className = "bg-blue-500 text-white px-3 py-2 rounded shadow text-sm text-center min-w-[60px]";
+          box.innerHTML = `${slot.name}<br><span class="text-xs">${slot.start}-${slot.start + slot.duration}</span>`;
+          ganttContainer.appendChild(box);
+          logTable.push(slot);
 
-    function renderStats(stats) {
-      const statsDiv = document.getElementById('stats');
-      statsDiv.innerHTML = '<h3 class="text-xl font-bold mb-2">Statistik Proses</h3>';
-      const table = document.createElement('table');
-      table.className = 'min-w-full border';
-      table.innerHTML = `
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border px-4 py-2">Proses</th>
-            <th class="border px-4 py-2">Waktu Kedatangan</th>
-            <th class="border px-4 py-2">Burst Time</th>
-            <th class="border px-4 py-2">Turnaround Time</th>
-            <th class="border px-4 py-2">Waiting Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${stats.map(s => `
-            <tr>
-              <td class="border px-4 py-2">${s.name}</td>
-              <td class="border px-4 py-2">${s.arrival}</td>
-              <td class="border px-4 py-2">${s.burst}</td>
-              <td class="border px-4 py-2">${s.turnaround}</td>
-              <td class="border px-4 py-2">${s.wait}</td>
-            </tr>
-          `).join('')}
-        </tbody>`;
-      statsDiv.appendChild(table);
+          // Jika ini slot terakhir, tampilkan tabel
+          if (i === timeline.length - 1) {
+            setTimeout(() => {
+              let tableHTML = '<h2 class="text-xl font-bold mt-6">Detail Eksekusi:</h2>';
+              tableHTML += '<table class="table-auto w-full border mt-2"><thead><tr class="bg-gray-300">';
+              tableHTML += '<th class="border px-2 py-1">Proses</th>';
+              tableHTML += '<th class="border px-2 py-1">Mulai</th>';
+              tableHTML += '<th class="border px-2 py-1">Durasi</th>';
+              tableHTML += '</tr></thead><tbody>';
+
+              for (let row of logTable) {
+                tableHTML += `<tr>
+                                <td class="border px-2 py-1">${row.name}</td>
+                                <td class="border px-2 py-1">${row.start}</td>
+                                <td class="border px-2 py-1">${row.duration}</td>
+                              </tr>`;
+              }
+
+              tableHTML += '</tbody></table>';
+              resultDiv.innerHTML += tableHTML;
+
+              startBtn.disabled = false;
+              startBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }, 500);
+          }
+        }, delay);
+        delay += 700; // kecepatan animasi tiap slot (ms)
+      }
     }
-  </script></body>
+  </script>
+</body>
 </html>
